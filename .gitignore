@@ -19,6 +19,7 @@ gitlab/data/
 gitlab/logs/
 gitlab/config/gitlab.rb
 gitlab/config/ssl/
+gitlab-data/
 
 # SonarQube data
 sonarqube/data/
@@ -267,3 +268,8 @@ review-history/*.json
 
 # Local testing artifacts
 local-test-data/
+
+# Cost tracking database
+cost-tracking/*.db
+cost-tracking/*.sqlite
+cost-tracking/*.sqlite3

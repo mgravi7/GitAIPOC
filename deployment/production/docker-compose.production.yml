@@ -1,0 +1,138 @@
+version: '3.8'
+
+# ============================================
+# PRODUCTION DEPLOYMENT - Review Agent Only
+# ============================================
+# This compose file is for deploying ONLY the review agent
+# to your team's environment with existing GitLab CE.
+#
+# GitLab CE is NOT included here (your team already has it).
+
+networks:
+  gitaipoc-network:
+    driver: bridge
+    name: ${DOCKER_NETWORK:-gitaipoc-network}
+
+services:
+  # ==========================================
+  # GitLab AI Review Agent (Production)
+  # ==========================================
+  gitlab-ai-reviewer:
+    build:
+      context: ../../gitlab-cr-agent
+      dockerfile: Dockerfile
+    container_name: gitlab-ai-reviewer-prod
+    hostname: review-agent
+    restart: always
+    
+    ports:
+      - "8000:8000"
+    
+    environment:
+      # GitLab Configuration (Team's GitLab CE)
+      GITLAB_URL: ${GITLAB_URL}
+      GITLAB_TOKEN: ${GITLAB_TOKEN}
+      GITLAB_WEBHOOK_SECRET: ${GITLAB_WEBHOOK_SECRET}
+      GITLAB_TRIGGER_TAG: ${GITLAB_TRIGGER_TAG:-ai-review}
+      
+      # Anthropic API
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      AI_MODEL: ${AI_MODEL:-anthropic:claude-sonnet-4.5-20241022}
+      
+      # Security
+      API_KEY: ${API_KEY}
+      ENVIRONMENT: production
+      
+      # Rate Limiting (Production Settings)
+      RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-true}
+      GLOBAL_RATE_LIMIT: ${GLOBAL_RATE_LIMIT:-200/minute}
+      WEBHOOK_RATE_LIMIT: ${WEBHOOK_RATE_LIMIT:-20/minute}
+      MAX_REQUEST_SIZE: ${MAX_REQUEST_SIZE:-10485760}
+      
+      # Circuit Breaker
+      CIRCUIT_BREAKER_FAILURE_THRESHOLD: ${CIRCUIT_BREAKER_FAILURE_THRESHOLD:-5}
+      CIRCUIT_BREAKER_TIMEOUT: ${CIRCUIT_BREAKER_TIMEOUT:-60}
+      
+      # Tool System
+      TOOLS_ENABLED: ${TOOLS_ENABLED:-true}
+      TOOLS_PARALLEL_EXECUTION: ${TOOLS_PARALLEL_EXECUTION:-true}
+      TOOLS_TIMEOUT: ${TOOLS_TIMEOUT:-30}
+      CONTEXT7_ENABLED: ${CONTEXT7_ENABLED:-true}
+      CONTEXT7_API_URL: ${CONTEXT7_API_URL:-http://context7:8080}
+      
+      # Standards-Based Rules
+      RULE_ENGINE_ENABLED: ${RULE_ENGINE_ENABLED:-true}
+      RULE_CACHE_TTL: ${RULE_CACHE_TTL:-3600}
+      OWASP_INTEGRATION: ${OWASP_INTEGRATION:-true}
+      NIST_INTEGRATION: ${NIST_INTEGRATION:-true}
+      PYTHON_STANDARDS: ${PYTHON_STANDARDS:-true}
+      FRAMEWORK_STANDARDS: ${FRAMEWORK_STANDARDS:-true}
+      
+      # Logging (Production)
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DEBUG: ${DEBUG:-false}
+      
+      # CORS (Team GitLab URL)
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+    
+    networks:
+      - gitaipoc-network
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-H", "Authorization: Bearer ${API_KEY}", "http://localhost:8000/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ==========================================
+  # Context7 MCP Service (Optional)
+  # ==========================================
+  context7:
+    image: context7/mcp-server:latest
+    container_name: context7-prod
+    hostname: context7
+    restart: always
+    
+    ports:
+      - "8080:8080"
+    
+    environment:
+      CONTEXT7_MAX_TOKENS: ${CONTEXT7_MAX_TOKENS:-2000}
+      CONTEXT7_CACHE_TTL: ${CONTEXT7_CACHE_TTL:-3600}
+    
+    networks:
+      - gitaipoc-network
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# ============================================
+# PRODUCTION DEPLOYMENT INSTRUCTIONS
+# ============================================
+# 1. Copy .env.production.example to .env in this directory
+# 2. Update GITLAB_URL to your team's GitLab CE URL
+# 3. Generate GitLab Personal Access Token (api scope)
+# 4. Generate secure random strings for API_KEY and GITLAB_WEBHOOK_SECRET
+# 5. Add your Anthropic API key
+# 6. Deploy: docker-compose -f docker-compose.production.yml --env-file .env up -d
+# 7. Configure webhook in GitLab:
+#    - URL: http://review-agent:8000/webhook/gitlab (or your internal URL)
+#    - Secret Token: Use GITLAB_WEBHOOK_SECRET value
+#    - Trigger: Merge request events
+# 8. Monitor logs: docker-compose -f docker-compose.production.yml logs -f

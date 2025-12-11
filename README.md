@@ -2,6 +2,8 @@
 
 A proof-of-concept project demonstrating automated AI-powered code reviews using GitLab Community Edition and Anthropic's Claude Sonnet 4.5 API, with optional SonarQube integration for static code analysis.
 
+**Built on:** [gitlab-cr-agent](https://github.com/adraynrion/gitlab-cr-agent) - Production-ready AI code review agent
+
 ## 🎯 Project Objectives
 
 This POC demonstrates:
@@ -22,7 +24,7 @@ This POC demonstrates:
          ▼
 ┌─────────────────┐
 │  Review Service │──────► Anthropic Claude API
-│   (Python)      │        (Sonnet 4.5)
+│ (gitlab-cr-agent)       (Sonnet 4.5)
 └────────┬────────┘
          │
          │ Post Review Comments
@@ -46,7 +48,43 @@ This POC demonstrates:
   - Anthropic API key (Claude Sonnet 4.5 access)
   - Budget allocated for API usage
 - **Network**:
-  - Ports available: 80, 443 (GitLab), 9000 (SonarQube optional)
+  - Ports available: 80, 443 (GitLab), 8000 (Review Agent), 9000 (SonarQube optional)
+
+## 🚀 Quick Start
+
+### 1. Clone and Initialize
+```bash
+git clone https://github.com/mgravi7/GitAIPOC.git
+cd GitAIPOC
+git submodule update --init --recursive
+```
+
+### 2. Configure Environment
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Edit .env and set:
+# - GITLAB_ROOT_PASSWORD
+# - ANTHROPIC_API_KEY
+# - API_KEY (generate random string)
+# - GITLAB_WEBHOOK_SECRET (generate random string)
+```
+
+### 3. Start Services
+```bash
+docker-compose up -d
+
+# Wait 2-3 minutes for GitLab to initialize
+docker-compose logs -f gitlab
+```
+
+### 4. Access GitLab
+- Open: http://localhost
+- Login: root / (your GITLAB_ROOT_PASSWORD)
+
+### 5. Setup Complete!
+See [deployment/setup-guide.md](deployment/setup-guide.md) for detailed setup instructions.
 
 ## 🚀 Implementation Phases
 
@@ -118,21 +156,35 @@ This POC demonstrates:
 
 ```
 GitAIPOC/
-├── README.md                    # This file
-├── docker-compose.yml           # Container orchestration
-├── gitlab/                      # GitLab configuration
-│   └── config/                  # GitLab settings
-├── review-service/              # Claude integration service
-│   ├── app.py                   # Webhook listener
-│   ├── claude_reviewer.py       # Claude API integration
-│   ├── gitlab_client.py         # GitLab API client
-│   ├── cost_tracker.py          # API cost monitoring
-│   ├── requirements.txt         # Python dependencies
-│   └── Dockerfile               # Service container
-├── sonarqube/                   # SonarQube configuration (Phase 3)
-│   └── config/
-└── test-repo/                   # Sample Python repository
-    └── (sample Python code)
+├── README.md                           # This file
+├── project-plan.md                     # Detailed implementation plan
+├── .gitignore                          # Git ignore rules
+├── .env.example                        # Environment template
+├── docker-compose.yml                  # Main orchestration file
+│
+├── gitlab-cr-agent/                    # Git submodule (review agent)
+│   ├── src/                            # Review agent source code
+│   ├── docker-compose.yml              # Their compose (reference)
+│   ├── Dockerfile                      # Agent container
+│   └── README.md                       # Upstream documentation
+│
+├── deployment/                         # Deployment configurations
+│   ├── local/                          # POC environment
+│   │   └── .env.local.example
+│   ├── production/                     # Team deployment
+│   │   ├── .env.production.example
+│   │   └── docker-compose.production.yml
+│   └── setup-guide.md                  # Deployment instructions
+│
+├── cost-tracking/                      # Custom cost monitoring
+│   └── (to be implemented)
+│
+├── test-repo/                          # Sample Python repository
+│   ├── src/
+│   └── tests/
+│
+└── docs/                               # POC documentation
+    └── phase-reports/
 ```
 
 ## ⚙️ Configuration
@@ -171,6 +223,14 @@ SONARQUBE_TOKEN=your_sonarqube_token
   - Medium PR (~1500 lines): $0.15 - $0.40
   - Large PR (~3000 lines): $0.30 - $0.80
 
+### Monthly Cost Projection (12 developers)
+```
+50 MRs/week × 4 weeks = 200 MRs/month
+200 MRs × $0.25 (average) = $50/month
+```
+
+**ROI: $550/month savings vs. GitLab Premium ($600/month)**
+
 ### Cost Optimization Techniques
 1. **Diff-only analysis** - Review only changed lines, not entire files
 2. **Smart chunking** - Split large PRs into reviewable segments
@@ -204,48 +264,37 @@ docker-compose down
 
 1. Push code changes to a feature branch
 2. Create merge request in GitLab
-3. Claude review automatically triggers via webhook
-4. Review comments appear within 30-60 seconds
-5. Review cost summary posted in MR description
+3. Add label `ai-review` to the MR
+4. Claude review automatically triggers via webhook
+5. Review comments appear within 30-60 seconds
 
 ### Interpreting Claude Reviews
 
-Claude will provide:
-- **Inline Comments**: Specific suggestions on code changes
-- **Security Issues**: Potential vulnerabilities
-- **Best Practices**: Python-specific recommendations
-- **Performance**: Optimization opportunities
-- **Maintainability**: Code clarity and structure feedback
+The gitlab-cr-agent provides comprehensive analysis:
+- **Security Issues**: OWASP Top 10, NIST framework detection
+- **Performance**: Python-specific optimization patterns
+- **Best Practices**: Framework-specific recommendations (FastAPI, Django, Flask)
+- **Code Quality**: Complexity metrics, type hints, error handling
+- **Documentation**: API usage validation via Context7
+
+## 📊 Features from gitlab-cr-agent
+
+✅ **Multi-LLM Support** - OpenAI, Anthropic, Google (we use Anthropic)  
+✅ **Production Security** - Bearer auth, rate limiting, circuit breakers  
+✅ **Python-Specialized** - 8+ Python-specific analysis tools  
+✅ **Standards-Based** - OWASP, NIST, Python PEPs integration  
+✅ **Language-Aware** - Smart tool routing based on file types  
+✅ **Enterprise-Ready** - Health checks, logging, monitoring  
+
+## 📚 Documentation
+
+- [Project Plan](project-plan.md) - Detailed 3-week implementation timeline
+- [Setup Guide](deployment/setup-guide.md) - Step-by-step deployment instructions
+- [gitlab-cr-agent Docs](gitlab-cr-agent/README.md) - Upstream documentation
 
 ## 🐛 Troubleshooting
 
-### GitLab Container Issues
-```bash
-# Check container status
-docker ps
-
-# View GitLab logs
-docker logs gitlab
-
-# Restart GitLab
-docker-compose restart gitlab
-```
-
-### Webhook Not Triggering
-- Verify webhook URL is accessible from GitLab container
-- Check GitLab webhook logs (Settings > Webhooks > Recent Deliveries)
-- Ensure review service is running: `docker ps | grep review-service`
-
-### API Cost Overruns
-- Check current usage: Review cost tracker dashboard
-- Adjust `MAX_TOKENS_PER_REVIEW` in `.env`
-- Enable `STRICT_BUDGET_MODE` to halt reviews at threshold
-
-### Claude API Errors
-- Verify API key in `.env` file
-- Check Anthropic API status
-- Review rate limit settings
-- Examine review-service logs for error details
+See [deployment/setup-guide.md](deployment/setup-guide.md#-troubleshooting) for common issues and solutions.
 
 ## 📊 Success Metrics
 
@@ -270,6 +319,7 @@ docker-compose restart gitlab
 
 - [GitLab CE Docker Documentation](https://docs.gitlab.com/ee/install/docker.html)
 - [Anthropic Claude API Documentation](https://docs.anthropic.com/)
+- [gitlab-cr-agent GitHub](https://github.com/adraynrion/gitlab-cr-agent)
 - [SonarQube Docker Setup](https://docs.sonarqube.org/latest/setup/install-server/)
 - [GitLab Webhooks](https://docs.gitlab.com/ee/user/project/integrations/webhooks.html)
 
@@ -279,6 +329,6 @@ This is a proof-of-concept project for evaluation purposes.
 
 ---
 
-**Status**: 🔴 Planning Phase  
-**Next Step**: Phase 1 - GitLab Server Setup  
-**Last Updated**: 2024
+**Status**: 🟢 Foundation Setup Complete  
+**Next Step**: Day 3-4 - GitLab CE Deployment  
+**Last Updated**: December 11, 2025
