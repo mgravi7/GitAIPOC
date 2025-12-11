@@ -2,7 +2,7 @@
 
 A proof-of-concept project demonstrating automated AI-powered code reviews using GitLab Community Edition and Anthropic's Claude Sonnet 4.5 API, with optional SonarQube integration for static code analysis.
 
-## ?? Project Objectives
+## 🎯 Project Objectives
 
 This POC demonstrates:
 1. **GitLab CE Deployment** - Self-hosted GitLab server running in Docker
@@ -10,32 +10,32 @@ This POC demonstrates:
 3. **Cost Management** - API usage tracking and cost optimization strategies
 4. **Static Analysis (Stretch Goal)** - SonarQube Community Edition integration
 
-## ??? Architecture Overview
+## 🏗️ Architecture Overview
 
 ```
-???????????????????
-?   GitLab CE     ?
-?   (Docker)      ?
-???????????????????
-         ?
-         ? Webhook Trigger on MR
-         ?
-???????????????????
-?  Review Service ???????? Anthropic Claude API
-?   (Python)      ?        (Sonnet 4.5)
-???????????????????
-         ?
-         ? Post Review Comments
-         ?
-???????????????????
-?  Merge Request  ?
-?   in GitLab     ?
-???????????????????
+┌─────────────────┐
+│   GitLab CE     │
+│   (Docker)      │
+└────────┬────────┘
+         │
+         │ Webhook Trigger on MR
+         ▼
+┌─────────────────┐
+│  Review Service │──────► Anthropic Claude API
+│   (Python)      │        (Sonnet 4.5)
+└────────┬────────┘
+         │
+         │ Post Review Comments
+         ▼
+┌─────────────────┐
+│  Merge Request  │
+│   in GitLab     │
+└─────────────────┘
 
 (Optional: SonarQube)
 ```
 
-## ?? Prerequisites
+## 📋 Prerequisites
 
 - **Docker Desktop** - Running on Windows 11 Professional with WSL2
 - **System Requirements**:
@@ -48,7 +48,7 @@ This POC demonstrates:
 - **Network**:
   - Ports available: 80, 443 (GitLab), 9000 (SonarQube optional)
 
-## ?? Implementation Phases
+## 🚀 Implementation Phases
 
 ### Phase 1: GitLab Server Setup
 
@@ -114,28 +114,28 @@ This POC demonstrates:
 
 ---
 
-## ?? Project Structure
+## 📁 Project Structure
 
 ```
 GitAIPOC/
-??? README.md                    # This file
-??? docker-compose.yml           # Container orchestration
-??? gitlab/                      # GitLab configuration
-?   ??? config/                  # GitLab settings
-??? review-service/              # Claude integration service
-?   ??? app.py                   # Webhook listener
-?   ??? claude_reviewer.py       # Claude API integration
-?   ??? gitlab_client.py         # GitLab API client
-?   ??? cost_tracker.py          # API cost monitoring
-?   ??? requirements.txt         # Python dependencies
-?   ??? Dockerfile               # Service container
-??? sonarqube/                   # SonarQube configuration (Phase 3)
-?   ??? config/
-??? test-repo/                   # Sample Python repository
-    ??? (sample Python code)
+├── README.md                    # This file
+├── docker-compose.yml           # Container orchestration
+├── gitlab/                      # GitLab configuration
+│   └── config/                  # GitLab settings
+├── review-service/              # Claude integration service
+│   ├── app.py                   # Webhook listener
+│   ├── claude_reviewer.py       # Claude API integration
+│   ├── gitlab_client.py         # GitLab API client
+│   ├── cost_tracker.py          # API cost monitoring
+│   ├── requirements.txt         # Python dependencies
+│   └── Dockerfile               # Service container
+├── sonarqube/                   # SonarQube configuration (Phase 3)
+│   └── config/
+└── test-repo/                   # Sample Python repository
+    └── (sample Python code)
 ```
 
-## ?? Configuration
+## ⚙️ Configuration
 
 ### Environment Variables
 
@@ -162,7 +162,7 @@ SONARQUBE_HOST=http://localhost:9000
 SONARQUBE_TOKEN=your_sonarqube_token
 ```
 
-## ?? Cost Considerations
+## 💰 Cost Considerations
 
 ### Anthropic Claude API Pricing (as of project start)
 - **Claude Sonnet 4.5**: ~$3 per million input tokens, ~$15 per million output tokens
@@ -185,7 +185,7 @@ SONARQUBE_TOKEN=your_sonarqube_token
 - Budget remaining dashboard
 - Cost per repository analytics
 
-## ?? Usage Guide
+## 🔧 Usage Guide
 
 ### Starting the Environment
 
@@ -217,7 +217,7 @@ Claude will provide:
 - **Performance**: Optimization opportunities
 - **Maintainability**: Code clarity and structure feedback
 
-## ?? Troubleshooting
+## 🐛 Troubleshooting
 
 ### GitLab Container Issues
 ```bash
@@ -247,16 +247,16 @@ docker-compose restart gitlab
 - Review rate limit settings
 - Examine review-service logs for error details
 
-## ?? Success Metrics
+## 📊 Success Metrics
 
-- ? GitLab CE running and accessible
-- ? Automated code reviews on all merge requests
-- ? Average review time < 60 seconds
-- ? API costs stay within budget ($100/month target)
-- ? Actionable feedback on Python code quality
-- ? (Stretch) SonarQube integration operational
+- ✅ GitLab CE running and accessible
+- ✅ Automated code reviews on all merge requests
+- ✅ Average review time < 60 seconds
+- ✅ API costs stay within budget ($100/month target)
+- ✅ Actionable feedback on Python code quality
+- ✅ (Stretch) SonarQube integration operational
 
-## ?? Future Enhancements
+## 🚧 Future Enhancements
 
 - Multi-language support (beyond Python)
 - Custom review rules and guidelines
@@ -266,19 +266,19 @@ docker-compose restart gitlab
 - Team-specific coding standards enforcement
 - Integration with Slack/Teams for notifications
 
-## ?? References
+## 📚 References
 
 - [GitLab CE Docker Documentation](https://docs.gitlab.com/ee/install/docker.html)
 - [Anthropic Claude API Documentation](https://docs.anthropic.com/)
 - [SonarQube Docker Setup](https://docs.sonarqube.org/latest/setup/install-server/)
 - [GitLab Webhooks](https://docs.gitlab.com/ee/user/project/integrations/webhooks.html)
 
-## ?? License
+## 📝 License
 
 This is a proof-of-concept project for evaluation purposes.
 
 ---
 
-**Status**: ?? Planning Phase  
+**Status**: 🔴 Planning Phase  
 **Next Step**: Phase 1 - GitLab Server Setup  
 **Last Updated**: 2024
