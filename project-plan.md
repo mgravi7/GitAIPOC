@@ -1,6 +1,6 @@
 # GitAIPOC - Project Implementation Plan
 
-## ?? Executive Summary
+## 📋 Executive Summary
 
 **Project Goal:** Implement automated AI-powered code reviews for GitLab merge requests using Anthropic's Claude Sonnet 4.5 API.
 
@@ -12,38 +12,38 @@
 
 ---
 
-## ?? Success Criteria
+## 🎯 Success Criteria
 
 ### POC Phase (Week 1)
-- ? GitLab CE running locally in Docker
-- ? Review agent successfully processing merge requests
-- ? Code reviews posted automatically within 60 seconds
-- ? Cost tracking functional (daily reports)
-- ? Estimated monthly costs <$100 based on test data
+- ✅ GitLab CE running locally in Docker
+- ✅ Review agent successfully processing merge requests
+- ✅ Code reviews posted automatically within 60 seconds
+- ✅ Cost tracking functional (daily reports)
+- ✅ Estimated monthly costs <$100 based on test data
 
 ### Team Deployment Phase (Week 2-3)
-- ? Review agent deployed to team infrastructure
-- ? Integration with existing self-hosted GitLab CE
-- ? 1-2 pilot projects onboarded successfully
-- ? Team satisfaction with review quality
-- ? Actual costs tracking within budget
+- ✅ Review agent deployed to team infrastructure
+- ✅ Integration with existing self-hosted GitLab CE
+- ✅ 1-2 pilot projects onboarded successfully
+- ✅ Team satisfaction with review quality
+- ✅ Actual costs tracking within budget
 
 ---
 
-## ??? Architecture Decision
+## 🏗️ Architecture Decision
 
 ### Selected Solution: gitlab-cr-agent
 
 **Repository:** https://github.com/adraynrion/gitlab-cr-agent
 
 **Why This Choice:**
-1. ? Production-ready with enterprise security features
-2. ? Multi-LLM support (OpenAI, Anthropic, Google) - we'll use Anthropic
-3. ? Built-in rate limiting and circuit breakers
-4. ? Docker-based deployment (easy migration)
-5. ? Active development (latest release: v3.7.2)
-6. ? Comprehensive Python-specific analysis tools
-7. ? No need to build webhook infrastructure from scratch
+1. ✅ Production-ready with enterprise security features
+2. ✅ Multi-LLM support (OpenAI, Anthropic, Google) - we'll use Anthropic
+3. ✅ Built-in rate limiting and circuit breakers
+4. ✅ Docker-based deployment (easy migration)
+5. ✅ Active development (latest release: v3.7.2)
+6. ✅ Comprehensive Python-specific analysis tools
+7. ✅ No need to build webhook infrastructure from scratch
 
 **Integration Strategy:**
 - Add as git submodule to maintain upstream updates
@@ -52,67 +52,67 @@
 
 ---
 
-## ?? Final Project Structure
+## 📁 Final Project Structure
 
 ```
 GitAIPOC/
-??? README.md                           # Project overview (existing)
-??? project-plan.md                     # This file
-??? .gitignore                          # Git ignore rules (existing)
-??? .env.example                        # Environment template
-??? docker-compose.yml                  # Main orchestration file
-?
-??? gitlab-cr-agent/                    # Git submodule
-?   ??? src/                            # Review agent source code
-?   ??? docker-compose.yml              # Their compose (reference)
-?   ??? Dockerfile                      # Agent container
-?   ??? README.md                       # Upstream documentation
-?
-??? deployment/                         # Deployment configurations
-?   ??? local/                          # POC environment
-?   ?   ??? .env.local.example
-?   ?   ??? docker-compose.local.yml
-?   ??? production/                     # Team deployment
-?   ?   ??? .env.production.example
-?   ?   ??? docker-compose.production.yml
-?   ??? setup-guide.md                  # Deployment instructions
-?
-??? cost-tracking/                      # Custom cost monitoring
-?   ??? daily_report.py                 # Generate daily cost summary
-?   ??? budget_monitor.py               # Alert on budget threshold
-?   ??? cost_analyzer.py                # Analyze historical costs
-?   ??? requirements.txt                # Python dependencies
-?   ??? config.yaml                     # Cost tracking config
-?
-??? gitlab-data/                        # GitLab CE persistent data (gitignored)
-?   ??? config/
-?   ??? logs/
-?   ??? data/
-?
-??? test-repo/                          # Sample Python repository
-?   ??? src/
-?   ?   ??? __init__.py
-?   ?   ??? app.py                      # Sample Flask app
-?   ?   ??? utils.py                    # Sample utilities
-?   ??? tests/
-?   ?   ??? test_app.py
-?   ??? requirements.txt
-?   ??? README.md
-?
-??? docs/                               # POC documentation
-    ??? poc-setup.md                    # Initial setup guide
-    ??? team-migration.md               # Team deployment guide
-    ??? cost-analysis.md                # Budget tracking results
-    ??? troubleshooting.md              # Common issues & solutions
-    ??? phase-reports/                  # Progress tracking
-        ??? phase1-gitlab-setup.md
-        ??? phase2-review-integration.md
-        ??? phase3-cost-optimization.md
+├── README.md                           # Project overview (existing)
+├── project-plan.md                     # This file
+├── .gitignore                          # Git ignore rules (existing)
+├── .env.example                        # Environment template
+├── docker-compose.yml                  # Main orchestration file
+│
+├── gitlab-cr-agent/                    # Git submodule
+│   ├── src/                            # Review agent source code
+│   ├── docker-compose.yml              # Their compose (reference)
+│   ├── Dockerfile                      # Agent container
+│   └── README.md                       # Upstream documentation
+│
+├── deployment/                         # Deployment configurations
+│   ├── local/                          # POC environment
+│   │   ├── .env.local.example
+│   │   └── docker-compose.local.yml
+│   ├── production/                     # Team deployment
+│   │   ├── .env.production.example
+│   │   └── docker-compose.production.yml
+│   └── setup-guide.md                  # Deployment instructions
+│
+├── cost-tracking/                      # Custom cost monitoring
+│   ├── daily_report.py                 # Generate daily cost summary
+│   ├── budget_monitor.py               # Alert on budget threshold
+│   ├── cost_analyzer.py                # Analyze historical costs
+│   ├── requirements.txt                # Python dependencies
+│   └── config.yaml                     # Cost tracking config
+│
+├── gitlab-data/                        # GitLab CE persistent data (gitignored)
+│   ├── config/
+│   ├── logs/
+│   └── data/
+│
+├── test-repo/                          # Sample Python repository
+│   ├── src/
+│   │   ├── __init__.py
+│   │   ├── app.py                      # Sample Flask app
+│   │   └── utils.py                    # Sample utilities
+│   ├── tests/
+│   │   └── test_app.py
+│   ├── requirements.txt
+│   └── README.md
+│
+└── docs/                               # POC documentation
+    ├── poc-setup.md                    # Initial setup guide
+    ├── team-migration.md               # Team deployment guide
+    ├── cost-analysis.md                # Budget tracking results
+    ├── troubleshooting.md              # Common issues & solutions
+    └── phase-reports/                  # Progress tracking
+        ├── phase1-gitlab-setup.md
+        ├── phase2-review-integration.md
+        └── phase3-cost-optimization.md
 ```
 
 ---
 
-## ?? Implementation Timeline
+## 📅 Implementation Timeline
 
 ### Week 1: POC Setup (Local Environment)
 
@@ -338,7 +338,7 @@ GLOBAL_RATE_LIMIT=100/minute
 
 ---
 
-## ?? Configuration Details
+## 🔧 Configuration Details
 
 ### Environment Variables
 
@@ -411,7 +411,7 @@ WEEKLY_REPORT_DAY=Monday
 
 ---
 
-## ?? Cost Projection Model
+## 💰 Cost Projection Model
 
 ### Assumptions
 - **Team Size:** 12 developers
@@ -422,10 +422,10 @@ WEEKLY_REPORT_DAY=Monday
 ### Monthly Cost Calculation
 ```
 Weekly MRs:    50
-Monthly MRs:   50 � 4 = 200
+Monthly MRs:   50 × 4 = 200
 Cost per MR:   $0.20 (average of small/medium/large)
 
-Total Monthly Cost: 200 � $0.20 = $40/month
+Total Monthly Cost: 200 × $0.20 = $40/month
 Buffer (25%):       $10/month
 Total Budget:       $50/month
 ```
@@ -440,7 +440,7 @@ Total Budget:       $50/month
 
 ### ROI Analysis
 ```
-GitLab Premium Cost:  12 devs � $50/user = $600/month
+GitLab Premium Cost:  12 devs × $50/user = $600/month
 AI Review Cost:                            $50/month
 -------------------------------------------------------
 Monthly Savings:                           $550/month
@@ -449,23 +449,23 @@ Annual Savings:                            $6,600/year
 
 ---
 
-## ?? Security Considerations
+## 🔒 Security Considerations
 
 ### POC Environment (Local)
-- ? GitLab accessible only on localhost
-- ? Review agent on same Docker network
-- ? API keys in .env file (gitignored)
-- ? Webhook secret for authentication
+- ✅ GitLab accessible only on localhost
+- ✅ Review agent on same Docker network
+- ✅ API keys in .env file (gitignored)
+- ✅ Webhook secret for authentication
 
 ### Production Environment (Team)
-- ? Review agent on internal network only
-- ? HTTPS for all communications
-- ? Bearer token authentication enabled
-- ? Webhook secret verification
-- ? Rate limiting to prevent abuse
-- ? API key rotation policy (every 90 days)
-- ? Audit logging for all reviews
-- ? Network segmentation (review agent in DMZ)
+- ✅ Review agent on internal network only
+- ✅ HTTPS for all communications
+- ✅ Bearer token authentication enabled
+- ✅ Webhook secret verification
+- ✅ Rate limiting to prevent abuse
+- ✅ API key rotation policy (every 90 days)
+- ✅ Audit logging for all reviews
+- ✅ Network segmentation (review agent in DMZ)
 
 ### API Key Management
 ```bash
@@ -478,7 +478,7 @@ ANTHROPIC_API_KEY=sk-ant-prod-xxxxx (team key with budget limits)
 
 ---
 
-## ?? Monitoring & Metrics
+## 📊 Monitoring & Metrics
 
 ### Health Checks
 ```bash
@@ -517,7 +517,7 @@ curl -H "Authorization: Bearer <token>" http://localhost:8000/health/ready
 
 ---
 
-## ?? Common Issues & Solutions
+## 🐛 Common Issues & Solutions
 
 ### Issue 1: Webhook Not Triggering
 **Symptoms:** MR created but no review appears
@@ -525,7 +525,7 @@ curl -H "Authorization: Bearer <token>" http://localhost:8000/health/ready
 **Solutions:**
 1. Check webhook configuration in GitLab
 2. Verify review agent is running: `docker ps`
-3. Check webhook logs in GitLab: Settings ? Webhooks ? Recent Deliveries
+3. Check webhook logs in GitLab: Settings → Webhooks → Recent Deliveries
 4. Verify network connectivity: `docker exec gitlab ping review-agent`
 5. Check review agent logs: `docker logs gitlab-ai-reviewer`
 
@@ -561,7 +561,7 @@ curl -H "Authorization: Bearer <token>" http://localhost:8000/health/ready
 
 ---
 
-## ?? Documentation Checklist
+## 📚 Documentation Checklist
 
 ### For POC
 - [x] project-plan.md (this file)
@@ -586,23 +586,23 @@ curl -H "Authorization: Bearer <token>" http://localhost:8000/health/ready
 
 ---
 
-## ?? Success Milestones
+## 🎯 Success Milestones
 
-### Milestone 1: POC Complete ?
+### Milestone 1: POC Complete ✅
 - [ ] GitLab CE running locally
 - [ ] Review agent processing MRs
 - [ ] Cost tracking operational
 - [ ] 10+ test reviews completed
 - [ ] Documentation drafted
 
-### Milestone 2: Team Pilot ?
+### Milestone 2: Team Pilot ✅
 - [ ] Production deployment complete
 - [ ] 2 pilot projects onboarded
 - [ ] Team trained on usage
 - [ ] Feedback collected
 - [ ] Cost tracking validated
 
-### Milestone 3: Full Rollout ?
+### Milestone 3: Full Rollout ✅
 - [ ] All repositories enabled
 - [ ] Team satisfied with quality
 - [ ] Costs within budget
@@ -611,7 +611,7 @@ curl -H "Authorization: Bearer <token>" http://localhost:8000/health/ready
 
 ---
 
-## ?? Maintenance Plan
+## 🔄 Maintenance Plan
 
 ### Daily
 - Review cost reports
@@ -638,7 +638,7 @@ curl -H "Authorization: Bearer <token>" http://localhost:8000/health/ready
 
 ---
 
-## ?? Support & Escalation
+## 📞 Support & Escalation
 
 ### POC Phase Support
 - **Primary Contact:** You (POC Owner)
@@ -659,14 +659,14 @@ curl -H "Authorization: Bearer <token>" http://localhost:8000/health/ready
 
 ---
 
-## ?? Next Actions
+## 🚀 Next Actions
 
 ### Immediate (This Week)
-1. ? Review and approve this project plan
-2. ? Set up git submodule for gitlab-cr-agent
-3. ? Create docker-compose.yml
-4. ? Configure .env file with API keys
-5. ? Deploy GitLab CE locally
+1. ✅ Review and approve this project plan
+2. ⏳ Set up git submodule for gitlab-cr-agent
+3. ⏳ Create docker-compose.yml
+4. ⏳ Configure .env file with API keys
+5. ⏳ Deploy GitLab CE locally
 
 ### Short Term (Next 2 Weeks)
 1. Complete POC setup
@@ -684,7 +684,7 @@ curl -H "Authorization: Bearer <token>" http://localhost:8000/health/ready
 
 ---
 
-## ?? Notes & Assumptions
+## 📝 Notes & Assumptions
 
 ### Assumptions
 - Docker Desktop already installed and configured
@@ -709,7 +709,7 @@ curl -H "Authorization: Bearer <token>" http://localhost:8000/health/ready
 
 ---
 
-## ?? Conclusion
+## 🎉 Conclusion
 
 This plan provides a clear path from POC to team deployment using the battle-tested `gitlab-cr-agent` project. By leveraging existing open-source infrastructure and adding targeted cost tracking enhancements, we can deliver automated AI code reviews at a fraction of the cost of GitLab Premium.
 
@@ -721,15 +721,15 @@ This plan provides a clear path from POC to team deployment using the battle-tes
 5. Maintain focus on $100/month budget target
 
 **Expected Outcomes:**
-- ? Automated code reviews on all merge requests
-- ? 10x cost savings vs. GitLab Premium
-- ? Improved code quality and security
-- ? Faster review cycles
-- ? Happy development team
+- ✅ Automated code reviews on all merge requests
+- ✅ 10x cost savings vs. GitLab Premium
+- ✅ Improved code quality and security
+- ✅ Faster review cycles
+- ✅ Happy development team
 
 ---
 
-**Plan Status:** ?? Ready to Execute  
+**Plan Status:** 🟢 Ready to Execute  
 **Created:** 2024  
 **Owner:** POC Lead  
 **Version:** 1.0
