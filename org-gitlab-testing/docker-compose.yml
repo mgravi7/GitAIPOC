@@ -1,0 +1,44 @@
+version: '3.8'
+
+# ============================================
+# Corporate GitLab Testing Environment
+# Code Review Agent Only (connects to corporate GitLab)
+# ============================================
+# Prerequisites:
+# - VPN connection to corporate network
+# - Corporate GitLab accessible
+# - Service account token generated
+
+networks:
+  gitlab-corp-net:
+    driver: bridge
+
+services:
+  # Code Review Agent
+  code-review-agent:
+    build:
+      context: ../gitlab-code-review-agent
+      dockerfile: Dockerfile
+    container_name: code-review-agent-corp
+    hostname: code-review-agent
+    restart: unless-stopped
+    
+    ports:
+      - "8000:8000"
+    
+    env_file:
+      - .env
+    
+    networks:
+      - gitlab-corp-net
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # Extra hosts for corporate network (if needed)
+    # extra_hosts:
+    #   - "gitlab.yourcompany.com:10.0.0.1"

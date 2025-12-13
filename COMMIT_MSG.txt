@@ -1,0 +1,99 @@
+feat: Restructure project for production deployment
+
+Major Restructuring:
+==================
+
+1. Directory Structure
+   - Renamed code-review-agent/ ? gitlab-code-review-agent/
+   - Organized code into src/ folder (Python package structure)
+   - Created tests/ folder for future unit tests
+   - Separated testing environments:
+     * local-testing/ - Local GitLab CE testing
+     * org-gitlab-testing/ - Corporate GitLab testing
+
+2. Code Organization
+   - gitlab-code-review-agent/src/ - Production agent code
+     * app.py - FastAPI webhook handler
+     * config.py - Environment configuration
+     * gitlab_client.py - GitLab API client
+     * claude_reviewer.py - Anthropic API integration
+     * __init__.py - Package initialization
+   - Updated imports to use src. prefix
+   - Updated Dockerfile to run as Python module
+
+3. Testing Environments
+   - local-testing/ - Test with local GitLab CE
+     * docker-compose.yml - GitLab CE + Agent
+     * .env.example - Local testing configuration
+   - org-gitlab-testing/ - Test with corporate GitLab
+     * docker-compose.yml - Agent only (connects to corp GitLab)
+     * .env.example - Corporate testing configuration
+
+4. Documentation Structure
+   - docs/deployment/
+     * local-testing.md - Local testing guide
+     * corporate-testing.md - Corporate GitLab testing guide
+     * production-kubernetes.md - K8s deployment (placeholder)
+   - docs/development/
+     * service-account-setup.md - GitLab service account setup
+     * environment-variables.md - Configuration reference (placeholder)
+     * troubleshooting.md - Common issues (placeholder)
+     * local-development.md - Development guide (placeholder)
+
+5. Updated Documentation
+   - README.md - Comprehensive guide for developers & DevOps
+   - gitlab-code-review-agent/README.md - Agent-specific docs
+   - Separate testing guides for local vs corporate scenarios
+
+Architecture Decisions:
+======================
+
+- Separate folders for local vs corporate testing (explicit clarity)
+- Two .env.example files (one per testing scenario)
+- src/ directory structure (Python best practices)
+- Keep gitlab-cr-agent/ submodule as reference
+- Focus on Anthropic Claude models only
+- No Kubernetes manifests yet (DevOps team will follow their standards)
+
+Migration Path:
+==============
+
+- Current: GitHub.com repository for development
+- Next: Clone to work computer, migrate to corporate GitLab
+- Future: Corporate GitLab becomes primary repository
+
+Production Readiness:
+====================
+
+- Docker image builds cleanly
+- Environment-based configuration
+- Rate limiting and error handling
+- Health check endpoint
+- Clear separation between POC and production code
+- Ready for DevOps team handoff
+
+Testing:
+========
+
+- Successfully tested with local GitLab CE
+- Validated against real merge request
+- Claude Sonnet 4 integration working
+- Cost: ~$0.15/review, ~$30/month for 50 MRs/week
+
+Breaking Changes:
+================
+
+- Code moved from code-review-agent/ to gitlab-code-review-agent/src/
+- Docker compose files split into local-testing/ and org-gitlab-testing/
+- Imports changed to use src. prefix
+- Old docker-compose.yml removed (replaced with testing-specific versions)
+
+Reference:
+=========
+
+- gitlab-cr-agent/ submodule kept for advanced feature reference
+- No current plans to expand beyond Anthropic models
+- Can refactor later if multi-model support needed
+
+Version: 1.0.0
+Status: Production-Ready

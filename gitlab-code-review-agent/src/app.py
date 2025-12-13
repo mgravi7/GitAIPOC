@@ -10,9 +10,9 @@ from fastapi.responses import JSONResponse
 from typing import Dict
 from datetime import datetime
 
-from config import settings
-from gitlab_client import GitLabClient
-from claude_reviewer import reviewer
+from src.config import settings
+from src.gitlab_client import GitLabClient
+from src.claude_reviewer import reviewer
 
 # Configure logging
 logging.basicConfig(

@@ -1,0 +1,88 @@
+version: '3.8'
+
+# ============================================
+# Local Testing Environment
+# GitLab CE + Code Review Agent
+# ============================================
+
+networks:
+  gitlab-local-net:
+    driver: bridge
+
+volumes:
+  gitlab-config:
+  gitlab-logs:
+  gitlab-data:
+
+services:
+  # GitLab CE for local testing
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab-local
+    hostname: gitlab
+    restart: unless-stopped
+    
+    ports:
+      - "80:80"
+      - "443:443"
+      - "2222:22"
+    
+    volumes:
+      - gitlab-config:/etc/gitlab
+      - gitlab-logs:/var/log/gitlab
+      - gitlab-data:/var/opt/gitlab
+    
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost'
+        gitlab_rails['initial_root_password'] = '${GITLAB_ROOT_PASSWORD}'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2222
+        
+        # Disable email for testing
+        gitlab_rails['gitlab_email_enabled'] = false
+        gitlab_rails['gitlab_email_from'] = 'gitlab@localhost'
+        
+        # Performance optimizations
+        puma['worker_processes'] = 2
+        sidekiq['max_concurrency'] = 10
+    
+    networks:
+      - gitlab-local-net
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/-/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    
+    shm_size: '256m'
+
+  # Code Review Agent
+  code-review-agent:
+    build:
+      context: ../gitlab-code-review-agent
+      dockerfile: Dockerfile
+    container_name: code-review-agent-local
+    hostname: code-review-agent
+    restart: unless-stopped
+    
+    ports:
+      - "8000:8000"
+    
+    env_file:
+      - .env
+    
+    networks:
+      - gitlab-local-net
+    
+    depends_on:
+      gitlab:
+        condition: service_healthy
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
