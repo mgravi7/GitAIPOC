@@ -4,17 +4,17 @@ Simple, focused AI code review agent for GitLab merge requests using Claude Sonn
 
 ## Features
 
-? **Simple & Focused** - Code reviews only, no unnecessary complexity  
-? **Direct Anthropic API** - Uses tested Claude Sonnet 4 API pattern  
-? **Environment-based Config** - All settings via environment variables  
-? **Rate Limiting** - Built-in protection against excessive API usage  
-? **Error Handling** - Graceful failures with helpful error messages  
-? **GitLab Integration** - Webhook-based, triggered by labels  
+✅ **Simple & Focused** - Code reviews only, no unnecessary complexity  
+✅ **Direct Anthropic API** - Uses tested Claude Sonnet 4 API pattern  
+✅ **Environment-based Config** - All settings via environment variables  
+✅ **Rate Limiting** - Built-in protection against excessive API usage  
+✅ **Error Handling** - Graceful failures with helpful error messages  
+✅ **GitLab Integration** - Webhook-based, triggered by labels  
 
 ## Architecture
 
 ```
-GitLab Webhook ? FastAPI App ? Claude Sonnet 4 ? GitLab Comment
+GitLab Webhook → FastAPI App → Claude Sonnet 4 → GitLab Comment
 ```
 
 ## Quick Start
@@ -88,9 +88,9 @@ Planned iterative improvements:
 ### Run Locally
 
 ```bash
-cd code-review-agent
+cd gitlab-code-review-agent
 pip install -r requirements.txt
-python app.py
+python -m src.app
 ```
 
 ### View Logs
