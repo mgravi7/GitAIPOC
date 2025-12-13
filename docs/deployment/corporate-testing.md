@@ -115,26 +115,26 @@ curl -X POST http://localhost:8000/webhook/gitlab \
 ## Troubleshooting
 
 ### Can't connect to corporate GitLab
-- ? VPN connected?
-- ? GitLab URL correct?
-- ? Token valid?
+- ✅ VPN connected?
+- ✅ GitLab URL correct?
+- ✅ Token valid?
 - Test: `curl -H "PRIVATE-TOKEN: your-token" https://gitlab.yourcompany.com/api/v4/user`
 
 ### Webhook not triggered
-- ? Webhook URL correct?
-- ? Secret matches?
-- ? Merge request events enabled?
+- ✅ Webhook URL correct?
+- ✅ Secret matches?
+- ✅ Merge request events enabled?
 - Check webhook logs in GitLab UI
 
 ### Review not posted
-- ? Service account has Developer access to project?
-- ? Token has correct scopes?
-- ? Agent logs show API errors?
+- ✅ Service account has Developer access to project?
+- ✅ Token has correct scopes?
+- ✅ Agent logs show API errors?
 - Check agent logs for detailed error messages
 
 ### Can't reach Anthropic API
-- ? Corporate proxy configured?
-- ? Firewall allows `api.anthropic.com`?
+- ✅ Corporate proxy configured?
+- ✅ Firewall allows `api.anthropic.com`?
 - Test: `curl https://api.anthropic.com`
 
 ## Network Configuration
