@@ -255,8 +255,10 @@ GITLAB_TOKEN=glpat-<your-actual-token>
 With the updated token, restart the agent:
 
 ```powershell
-docker-compose restart code-review-agent
+docker-compose up -d --force-recreate code-review-agent
 ```
+
+**Note:** We use `--force-recreate` instead of `restart` to ensure the updated `.env` file is reloaded. A simple restart doesn't reload environment variables.
 
 **Verify it's running:**
 ```powershell
@@ -280,7 +282,7 @@ curl http://localhost:8000/health
 **Project Details:**
 ```
 Project name:        python-test-app
-Project URL:         (leave as default)
+Project URL:         Select "root" from the dropdown
 Visibility Level:    Private
 ```
 
@@ -289,9 +291,11 @@ Visibility Level:    Private
 
 Click **"Create project"**
 
+**Note:** The full project URL will be `http://localhost/root/python-test-app`
+
 ### Step 2: Add Service Account to Project
 
-1. In project sidebar: **Settings** → **Members**
+1. In project sidebar: **Manage** → **Members**
 2. Click **"Invite members"**
 3. Search for: `gitlab-ai-reviewer`
 4. **Role:** Developer
@@ -325,22 +329,41 @@ Click **"Add webhook"**
 1. Find your webhook in the list
 2. Click **"Test"** → **"Merge request events"**
 
-**Expected:** `HTTP 200` response
+**Expected Result:**
+- You may see: **"Hook execution failed: Ensure the project has merge requests."**
+- This is **normal** - you haven't created a merge request yet!
+- The webhook will work when you create an actual MR in Phase 4
 
-**If you see an error:**
+**Alternative:** You can skip this test and verify the webhook works when you add the `ai-review` label to your merge request in Phase 4, Step 3.
+
+**If you see `HTTP 200`:**
+- Great! The webhook configuration is correct (though test data may be limited)
+
+**If you see other errors:**
 - Verify "Allow local network" is enabled (Phase 2, Step 2.7)
-- Verify the URL is correct
+- Verify the URL is correct: `http://code-review-agent:8000/webhook/gitlab`
 - Check agent logs: `docker-compose logs code-review-agent`
 
-### Step 4: Create Feature Branch
+### Step 4: Create Project Label
 
-1. In project, click **Repository** → **Branches**
+1. In project sidebar: **Settings** → **Labels**
+2. Click **"New label"**
+3. **Title:** `ai-review`
+4. **Description:** `Trigger AI code review`
+5. **Color:** Choose any color (e.g., blue or green)
+6. Click **"Create label"**
+
+**Note:** This label will be used to trigger code reviews on merge requests.
+
+### Step 5: Create Feature Branch
+
+1. In project, click **Code** → **Branches**
 2. Click **"New branch"**
 3. **Branch name:** `feature/add-authentication`
 4. **Create from:** `main`
 5. Click **"Create branch"**
 
-### Step 5: Add Test Code Files
+### Step 6: Add Test Code Files
 
 We'll create two Python files with intentional issues for Claude to find.
 
@@ -448,24 +471,23 @@ def find_duplicates(numbers):
 2. Click **"New merge request"**
 3. **Source branch:** `feature/add-authentication`
 4. **Target branch:** `main`
-5. Click **"Compare branches and continue"**
+5. You'll see the merge request creation form with the diff preview
 
-### Step 2: Fill in MR Details
+### Step 2: Fill in MR Details and Add Label
+
+On the merge request creation page:
 
 ```
 Title:        Add user authentication module
 Description:  Implementing authentication features for the application
 ```
 
+**Before clicking "Create merge request":**
+1. Scroll down to the **"Labels"** section
+2. Click in the labels dropdown
+3. Select the **`ai-review`** label (created in Phase 3, Step 4)
+
 Click **"Create merge request"**
-
-### Step 3: Add AI Review Label
-
-1. On the MR page, find **"Labels"** in the right sidebar
-2. Click **"Edit"**
-3. Type: `ai-review`
-4. Click **"Create label ai-review"** (if it doesn't exist)
-5. The label should now be added to the MR
 
 **⏱️ The webhook is now triggered!**
 
@@ -708,6 +730,31 @@ docker-compose logs code-review-agent | Select-String "anthropic"
 - Check API usage/credits
 - Verify model name: `claude-sonnet-4-20250514`
 - Check internet connectivity
+
+### Issue: Agent Using Old Environment Variables
+
+**Symptoms:**
+- Updated `.env` file but agent still shows old behavior
+- 401 errors after updating `GITLAB_TOKEN`
+- Agent not picking up configuration changes
+
+**Diagnostic Steps:**
+```powershell
+# Check if container has the updated token
+docker exec code-review-agent-local env | Select-String "GITLAB_TOKEN"
+```
+
+**Common Cause:**
+- Using `docker-compose restart` which doesn't reload `.env` file
+- Docker only loads environment variables during `docker-compose up`
+
+**Solution:**
+```powershell
+# Force recreate the container to reload .env
+docker-compose up -d --force-recreate code-review-agent
+```
+
+**Important:** Always use `--force-recreate` after updating `.env` file!
 
 ---
 
