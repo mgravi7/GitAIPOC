@@ -44,8 +44,18 @@ services:
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         external_url '${GITLAB_EXTERNAL_URL:-http://localhost}'
-        gitlab_rails['initial_root_password'] = '${GITLAB_ROOT_PASSWORD}'
+        gitlab_rails['initial_root_password'] = "${GITLAB_ROOT_PASSWORD}"
         gitlab_rails['gitlab_shell_ssh_port'] = ${GITLAB_SSH_PORT:-2222}
+        
+        # Disable email confirmation for POC
+        gitlab_rails['gitlab_email_enabled'] = false
+        gitlab_rails['gitlab_email_from'] = 'gitlab@localhost'
+        gitlab_rails['gitlab_email_display_name'] = 'GitLab'
+        gitlab_rails['gitlab_email_reply_to'] = 'noreply@localhost'
+        
+        # Skip email confirmation
+        gitlab_rails['omniauth_allow_single_sign_on'] = false
+        gitlab_rails['block_auto_created_users'] = false
         
         # Performance optimizations for POC
         gitlab_rails['env'] = {
@@ -72,14 +82,14 @@ services:
     shm_size: '256m'
 
   # ==========================================
-  # GitLab AI Review Agent
+  # Code Review Agent (Simple Custom Agent)
   # ==========================================
-  gitlab-ai-reviewer:
+  code-review-agent:
     build:
-      context: ./gitlab-cr-agent
+      context: ./code-review-agent
       dockerfile: Dockerfile
-    container_name: gitlab-ai-reviewer
-    hostname: review-agent
+    container_name: code-review-agent
+    hostname: code-review-agent
     restart: unless-stopped
     
     ports:
@@ -90,46 +100,26 @@ services:
       GITLAB_URL: ${GITLAB_URL:-http://gitlab}
       GITLAB_TOKEN: ${GITLAB_TOKEN}
       GITLAB_WEBHOOK_SECRET: ${GITLAB_WEBHOOK_SECRET}
-      GITLAB_TRIGGER_TAG: ${GITLAB_TRIGGER_TAG:-ai-review}
+      GITLAB_TRIGGER_LABEL: ${GITLAB_TRIGGER_LABEL:-ai-review}
       
-      # Anthropic API
+      # Anthropic Configuration
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      AI_MODEL: ${AI_MODEL:-anthropic:claude-sonnet-4.5-20241022}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-4-20250514}
+      ANTHROPIC_MAX_TOKENS: ${ANTHROPIC_MAX_TOKENS:-4096}
+      ANTHROPIC_API_VERSION: ${ANTHROPIC_API_VERSION:-2023-06-01}
       
-      # Security
-      API_KEY: ${API_KEY}
-      ENVIRONMENT: ${ENVIRONMENT:-development}
+      # Application Configuration
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
       
       # Rate Limiting
       RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-true}
-      GLOBAL_RATE_LIMIT: ${GLOBAL_RATE_LIMIT:-100/minute}
-      WEBHOOK_RATE_LIMIT: ${WEBHOOK_RATE_LIMIT:-10/minute}
-      MAX_REQUEST_SIZE: ${MAX_REQUEST_SIZE:-10485760}
+      MAX_REVIEWS_PER_HOUR: ${MAX_REVIEWS_PER_HOUR:-50}
       
-      # Circuit Breaker
-      CIRCUIT_BREAKER_FAILURE_THRESHOLD: ${CIRCUIT_BREAKER_FAILURE_THRESHOLD:-5}
-      CIRCUIT_BREAKER_TIMEOUT: ${CIRCUIT_BREAKER_TIMEOUT:-60}
-      
-      # Tool System
-      TOOLS_ENABLED: ${TOOLS_ENABLED:-true}
-      TOOLS_PARALLEL_EXECUTION: ${TOOLS_PARALLEL_EXECUTION:-true}
-      TOOLS_TIMEOUT: ${TOOLS_TIMEOUT:-30}
-      CONTEXT7_ENABLED: ${CONTEXT7_ENABLED:-true}
-      
-      # Standards-Based Rules
-      RULE_ENGINE_ENABLED: ${RULE_ENGINE_ENABLED:-true}
-      RULE_CACHE_TTL: ${RULE_CACHE_TTL:-3600}
-      OWASP_INTEGRATION: ${OWASP_INTEGRATION:-true}
-      NIST_INTEGRATION: ${NIST_INTEGRATION:-true}
-      PYTHON_STANDARDS: ${PYTHON_STANDARDS:-true}
-      FRAMEWORK_STANDARDS: ${FRAMEWORK_STANDARDS:-true}
-      
-      # Logging
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
-      DEBUG: ${DEBUG:-false}
-      
-      # CORS
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost,http://localhost:80}
+      # Review Configuration
+      REVIEW_TIMEOUT: ${REVIEW_TIMEOUT:-120}
+      MAX_DIFF_SIZE: ${MAX_DIFF_SIZE:-10000}
     
     networks:
       - gitaipoc-network
@@ -139,7 +129,7 @@ services:
         condition: service_healthy
     
     healthcheck:
-      test: ["CMD", "curl", "-f", "-H", "Authorization: Bearer ${API_KEY}", "http://localhost:8000/health/live"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
