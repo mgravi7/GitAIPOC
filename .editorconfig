@@ -1,0 +1,38 @@
+# EditorConfig for GitAIPOC
+# Top-most EditorConfig file
+root = true
+
+# All files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Markdown files
+[*.md]
+charset = utf-8
+trim_trailing_whitespace = false
+
+# Python files
+[*.py]
+charset = utf-8
+indent_style = space
+indent_size = 4
+
+# YAML files
+[*.{yml,yaml}]
+charset = utf-8
+indent_style = space
+indent_size = 2
+
+# JSON files
+[*.json]
+charset = utf-8
+indent_style = space
+indent_size = 2
+
+# Shell scripts
+[*.sh]
+charset = utf-8
+end_of_line = lf
