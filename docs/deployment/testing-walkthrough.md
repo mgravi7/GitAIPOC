@@ -44,6 +44,9 @@ cp .env.example .env
 Open `local-testing\.env` in your editor and configure:
 
 ```bash
+# Docker Compose Configuration
+COMPOSE_PROJECT_NAME=GitAIPOC-local
+
 # GitLab CE Configuration
 GITLAB_ROOT_PASSWORD=<your-secure-password>
 
@@ -74,6 +77,7 @@ MAX_DIFF_SIZE=10000
 ```
 
 **Important:** 
+- `COMPOSE_PROJECT_NAME` sets the project name in Docker Desktop (you'll see "GitAIPOC-local" instead of "local-testing")
 - Replace `<your-secure-password>` with your own strong password (min 8 chars)
 - Replace `sk-ant-<your-actual-api-key>` with your real Anthropic API key
 - Replace `<generate-random-32-char-string>` with a randomly generated secret (use PowerShell below)

@@ -1,5 +1,3 @@
-version: '3.8'
-
 # ============================================
 # Corporate GitLab Testing Environment
 # Code Review Agent Only (connects to corporate GitLab)
