@@ -181,12 +181,29 @@ Click **"Create user"**
 5. **Uncheck:** "User must change password at next sign-in"
 6. Click **"Save changes"**
 
-**Note:** Remember this password - you won't need it for normal operation, but it's useful for troubleshooting.
+**Note:** Remember this password - you'll need it in the next step to log in as this user.
+
+#### 2.4.1: First Login as Service Account
+
+**Important:** You must log in as the service account to activate it before generating tokens.
+
+1. **Log out** from the root account (click your avatar → Sign out)
+2. Log in with the service account:
+   - **Username:** `gitlab-ai-reviewer`
+   - **Password:** (the password you just set in step 2.4)
+3. GitLab may prompt you to change your password - you can keep the same password or set a new one
+4. After successful login, you'll see the GitLab homepage as `gitlab-ai-reviewer`
+5. **Keep this window open** - you'll generate the token while logged in as this user
+
+**Tip:** You can open a new browser window or incognito/private window to stay logged in as root in another session if needed.
 
 #### 2.5: Generate Personal Access Token
 
-1. On the user page, click **"Personal Access Tokens"** in the left sidebar
-2. Click **"Add new token"**
+**Note:** Make sure you're logged in as `gitlab-ai-reviewer` (from step 2.4.1).
+
+1. Click your **avatar** (top-right) → **Preferences**
+2. In left sidebar, click **Access Tokens**
+3. Click **"Add new token"**
 
 **Token Configuration:**
 ```
@@ -216,7 +233,17 @@ GITLAB_TOKEN=glpat-<your-actual-token>
 
 **Save the `.env` file.**
 
+#### 2.6.1: Log Back In as Root
+
+1. **Log out** from the `gitlab-ai-reviewer` account (avatar → Sign out)
+2. **Log back in as root:**
+   - **Username:** `root`
+   - **Password:** (your `GITLAB_ROOT_PASSWORD` from `.env` file)
+3. You'll need root access for the next configuration steps
+
 #### 2.7: Enable Local Network Webhooks
+
+**Note:** Make sure you're logged in as `root` for this admin configuration.
 
 1. Admin Area → **Settings** → **Network**
 2. Expand **"Outbound requests"**

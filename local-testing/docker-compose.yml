@@ -40,6 +40,9 @@ services:
         gitlab_rails['gitlab_email_enabled'] = false
         gitlab_rails['gitlab_email_from'] = 'gitlab@localhost'
         
+        # Skip email confirmation for new users
+        gitlab_rails['gitlab_signup_enabled'] = false
+        
         # Performance optimizations
         puma['worker_processes'] = 2
         sidekiq['max_concurrency'] = 10
