@@ -106,7 +106,7 @@ RATE_LIMIT_ENABLED=true
 MAX_REVIEWS_PER_HOUR=50
 
 # Diff size limits
-MAX_DIFF_SIZE=10000  # lines
+MAX_DIFF_SIZE_LINES=10000  # lines
 
 # Timeout
 REVIEW_TIMEOUT=120  # seconds

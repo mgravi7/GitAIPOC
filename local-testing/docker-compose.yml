@@ -11,6 +11,7 @@ volumes:
   gitlab-config:
   gitlab-logs:
   gitlab-data:
+  token-data:  # Add persistent volume for token tracking
 
 services:
   # GitLab CE for local testing
@@ -70,6 +71,9 @@ services:
     
     ports:
       - "8000:8000"
+    
+    volumes:
+      - token-data:/app/data/tokens  # Mount persistent volume for token data
     
     env_file:
       - .env

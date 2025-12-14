@@ -11,6 +11,9 @@ networks:
   gitlab-corp-net:
     driver: bridge
 
+volumes:
+  token-data:  # Persistent volume for token tracking
+
 services:
   # Code Review Agent
   code-review-agent:
@@ -23,6 +26,9 @@ services:
     
     ports:
       - "8000:8000"
+    
+    volumes:
+      - token-data:/app/data/tokens  # Mount persistent volume for token data
     
     env_file:
       - .env

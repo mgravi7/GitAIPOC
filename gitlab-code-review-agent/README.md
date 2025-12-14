@@ -84,7 +84,7 @@ Add the `ai-review` label to any merge request!
 | `RATE_LIMIT_ENABLED` | `true` | Enable rate limiting |
 | `MAX_REVIEWS_PER_HOUR` | `50` | Max reviews per hour |
 | `REVIEW_TIMEOUT` | `120` | Review timeout (seconds) |
-| `MAX_DIFF_SIZE` | `10000` | Max diff size (lines) |
+| `MAX_DIFF_SIZE_LINES` | `10000` | Max diff size (lines) |
 | `MAX_RETRIES` | `3` | Maximum retry attempts |
 | `RETRY_INITIAL_DELAY` | `1.0` | Initial retry delay (seconds) |
 | `RETRY_BACKOFF_FACTOR` | `2.0` | Exponential backoff multiplier |
@@ -132,6 +132,22 @@ year,month,day,time,project_id,project_name,mr_iid,username,input_tokens,output_
 - Pivot tables: Group by project, user, or date
 - Formulas: `=SUM(K:K)` for total tokens
 - Charts: Token usage over time
+
+### Timestamps & Time Zones
+
+**All timestamps are in UTC (Coordinated Universal Time).**
+
+**Why UTC?**
+- **Industry Standard**: Production logging best practice
+- **No DST Confusion**: Avoids daylight saving time complexity
+- **Portable**: Works consistently across all deployments
+- **Simple**: No time zone conversion bugs
+
+**Budget Reset**: Midnight UTC (4 PM Pacific / 5 PM Pacific Daylight Time)
+
+**Converting to Local Time (if needed):**
+- Excel formula for Pacific Time: `=TIME_COLUMN-TIME(8,0,0)` (PST) or `=TIME_COLUMN-TIME(7,0,0)` (PDT)
+- Most analysis (grouping by day/project/user) works fine with UTC
 
 ### Budget Enforcement
 

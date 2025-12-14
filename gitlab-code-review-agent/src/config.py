@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     
     # ===== Review Configuration =====
     review_timeout: int = Field(default=120, description="Review timeout in seconds")
-    max_diff_size: int = Field(default=10000, description="Maximum diff size in lines")
+    max_diff_size_lines: int = Field(default=10000, description="Maximum diff size in lines")
     
     # ===== Retry Configuration =====
     max_retries: int = Field(default=3, description="Maximum number of retry attempts")

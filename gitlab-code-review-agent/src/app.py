@@ -157,8 +157,8 @@ async def process_code_review(project_id: int, mr_iid: int):
         
         # Check diff size
         diff_lines = len(diff.split("\n"))
-        if diff_lines > settings.max_diff_size:
-            error_msg = f"⚠️ Diff too large ({diff_lines} lines). Maximum is {settings.max_diff_size} lines."
+        if diff_lines > settings.max_diff_size_lines:
+            error_msg = f"⚠️ Diff too large ({diff_lines} lines). Maximum is {settings.max_diff_size_lines} lines."
             await gitlab.post_merge_request_comment(project_id, mr_iid, error_msg)
             return
         
