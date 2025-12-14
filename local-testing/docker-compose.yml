@@ -1,5 +1,3 @@
-version: '3.8'
-
 # ============================================
 # Local Testing Environment
 # GitLab CE + Code Review Agent
@@ -42,6 +40,9 @@ services:
         gitlab_rails['gitlab_email_enabled'] = false
         gitlab_rails['gitlab_email_from'] = 'gitlab@localhost'
         
+        # Skip email confirmation for new users
+        gitlab_rails['gitlab_signup_enabled'] = false
+        
         # Performance optimizations
         puma['worker_processes'] = 2
         sidekiq['max_concurrency'] = 10
@@ -81,7 +82,7 @@ services:
         condition: service_healthy
     
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
       timeout: 10s
       retries: 3

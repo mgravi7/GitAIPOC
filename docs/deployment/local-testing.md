@@ -48,7 +48,7 @@ Open browser: http://localhost
 Follow the guide: [Service Account Setup](../development/service-account-setup.md)
 
 **Summary:**
-1. Admin Area ? Users ? New user
+1. Admin Area → Users → New user
 2. Username: `gitlab-ai-reviewer`
 3. Email: `ai-reviewer@localhost`
 4. Generate Personal Access Token with scopes: `api`, `read_api`, `read_repository`, `write_repository`
@@ -64,15 +64,15 @@ docker-compose restart code-review-agent
 
 In your test project:
 
-1. Settings ? Webhooks
+1. Settings → Webhooks
 2. URL: `http://code-review-agent:8000/webhook/gitlab`
 3. Secret: (your `GITLAB_WEBHOOK_SECRET` from `.env`)
 4. Trigger: Merge request events
 5. Click "Add webhook"
 
 Enable local network webhooks:
-- Admin Area ? Settings ? Network ? Outbound requests
-- ? Allow requests to the local network from webhooks
+- Admin Area → Settings → Network → Outbound requests
+- ✅ Allow requests to the local network from webhooks
 
 ### 7. Create Test Project & MR
 
