@@ -766,62 +766,75 @@ For this test, you should expect:
 - Input: ~800 tokens (the code diff)
 - Output: ~1,200 tokens (the review)
 
-**Cost:**
-- Approximately $0.15 per review
-- Check usage at: https://console.anthropic.com/
+**Cost Calculation:**
+- Input: (800 tokens / 1,000,000) × $3.00 = $0.0024
+- Output: (1,200 tokens / 1,000,000) × $15.00 = $0.018
+- **Total: ~$0.02 per review**
+
+**Pricing (Claude Sonnet 4):**
+- Input tokens: $3.00 per million
+- Output tokens: $15.00 per million
+
+**Note:** Actual costs may vary based on diff size and review complexity. Check your usage at: https://console.anthropic.com/
 
 ---
 
-## Clean Up (Optional)
+### Realistic Production Cost Estimates
 
-If you want to reset everything:
+**Typical Team Usage (20 developers, 1 review/day each):**
 
-```powershell
-# Stop all services
-docker-compose down
+**Average MR (2,500 lines):**
+- Input: ~12,500 tokens (2,500 lines × ~5 tokens/line)
+- Output: ~2,000 tokens (good code = shorter review)
+- **Cost per review: ~$0.07**
 
-# Remove all data (WARNING: deletes everything!)
-docker-compose down -v
+**Daily costs:**
+- 20 reviews/day × $0.07 = **$1.40/day**
 
-# Remove containers and networks
-docker-compose down --remove-orphans
-```
+**Monthly costs:**
+- $1.40/day × 22 working days = **~$31/month**
 
-To start fresh, repeat from Phase 1.
-
----
-
-## Next Steps
-
-Once local testing is successful:
-
-1. **Document any issues encountered** - Update this guide
-2. **Test with different code** - Try other programming languages
-3. **Test rate limiting** - Create multiple MRs quickly
-4. **Move to corporate testing** - See `corporate-testing.md`
-5. **Plan production deployment** - Work with DevOps team
+**Annual costs:**
+- $31/month × 12 months = **~$370/year**
 
 ---
 
-## Notes & Observations
+### Cost Breakdown by MR Size
 
-Use this section to document your testing experience:
+| MR Size | Lines | Input Tokens | Output Tokens | Cost/Review |
+|---------|-------|--------------|---------------|-------------|
+| **Small** | 500 | 2,500 | 1,200 | $0.03 |
+| **Medium** | 2,500 | 12,500 | 2,000 | $0.07 |
+| **Large** | 5,000 | 25,000 | 3,000 | $0.12 |
+| **Very Large** | 10,000 | 50,000 | 4,000 | $0.21 |
 
-### What Worked Well
-- (Document successful steps)
-
-### Issues Encountered
-- (Document problems and solutions)
-
-### Documentation Improvements Needed
-- (Note unclear or missing steps)
-
-### Questions for Next Testing Round
-- (Things to investigate further)
+**Note:** Good code typically results in shorter reviews (fewer output tokens), reducing costs. Poor code with many issues generates longer, more detailed reviews.
 
 ---
 
-**Version:** 1.0.0  
-**Last Updated:** December 2025  
-**Tested By:** (Your name)  
-**Date:** (Testing date)
+### Monthly Budget Scenarios
+
+**Conservative (10 reviews/day):**
+- Daily: $0.70
+- Monthly (22 days): **~$15**
+- Annual: **~$185**
+
+**Realistic (20 reviews/day):**
+- Daily: $1.40
+- Monthly (22 days): **~$31**
+- Annual: **~$370**
+
+**High Volume (50 reviews/day):**
+- Daily: $3.50
+- Monthly (22 days): **~$77**
+- Annual: **~$925**
+
+---
+
+### Cost Optimization Tips
+
+1. **Good code = Lower costs** - Clean code with fewer issues results in shorter reviews
+2. **Smaller MRs** - Encourage breaking large changes into smaller, focused MRs
+3. **Rate limiting** - Current setting: 50 reviews/hour prevents accidental cost spikes
+4. **Monitor usage** - Track costs at https://console.anthropic.com/
+5. **Diff size limit** - Current: 10,000 lines prevents extremely expensive reviews
