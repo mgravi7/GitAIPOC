@@ -1,6 +1,6 @@
 # Release Notes
 
-## Version 1.1.0 (December 2025)
+## Version 1.1.0 (13 December 2025)
 
 ### 🎉 Major Improvements
 
