@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fast daily summary JSON files for sub-10ms budget checks
   - In-memory caching for performance
   - Automatic file cleanup (90 days for summaries, 365 days for logs)
+- **Docker Volume Persistence**: Token data now persists across container restarts
 - **New API Endpoint**: `GET /budget/status` to check current token usage
 - **Budget Enforcement**: Automatic rejection of reviews when daily limit is reached
   - Clear error messages posted to MR comments
@@ -25,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Monthly CSV files for manageable file sizes
   - Ready for pivot tables and analysis
   - Includes project, user, MR, and token details
+- **UTC Timestamp Documentation**: Clear explanation of UTC usage and time zone conversion
+- **Rate Limiting Documentation**: Comprehensive explanation of in-memory rate limiter
 - **New Configuration Options**:
   - `TOKEN_BUDGET_ENABLED`: Enable/disable token tracking (default: true)
   - `TOKEN_DAILY_LIMIT`: Daily token limit (default: 1,000,000)
@@ -36,12 +39,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Enhanced Review Flow**: Now includes budget check before API calls
 - **Improved Error Handling**: Specific handling for budget exhaustion
-- **Better Logging**: Includes token counts in log messages
+- **Better Logging**: Includes token counts and budget status in log messages
 - **Version Bump**: Application version updated to 1.2.0
+- **Documentation**: Consolidated all token budget docs into README.md (removed 3 separate files)
 
 ### Fixed
 - Token tracking only logs successful Claude API responses (not errors)
 - Graceful degradation if token tracking fails
+- Docker volumes now properly configured for data persistence
+
+### Production Readiness
+- ✅ **Tested**: All features tested with Claude Sonnet 4 and 4.5
+- ✅ **Cost Controls**: Token budget + rate limiting (dual protection)
+- ✅ **Reliability**: Retry logic with exponential backoff
+- ✅ **Monitoring**: Budget status endpoint + detailed CSV logs
+- ✅ **Documentation**: Comprehensive README with all features explained
+- ✅ **Persistence**: Docker volumes configured for stateful data
+- ✅ **Ready for Corporate GitLab**: Tested with self-hosted GitLab CE
 
 ## [1.1.0] - 2025-12-13
 

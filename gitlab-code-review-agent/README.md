@@ -225,6 +225,74 @@ Attempt 2 → 503 Service Unavailable → Wait 2.0s
 Attempt 3 → Success ✓
 ```
 
+## Rate Limiting
+
+The agent includes a simple in-memory rate limiter to prevent abuse and control API usage:
+
+- **Sliding Window**: Tracks reviews over the last 60 minutes
+- **Default Limit**: 50 reviews per hour (configurable)
+- **In-Memory Tracking**: No external dependencies (Redis, etc.)
+- **User-Friendly**: Clear MR comment when limit is reached
+
+### How It Works
+
+**Rate Limit Check Flow:**
+1. Before each review, check if limit is reached
+2. Remove timestamps older than 1 hour from memory
+3. Count reviews in the last hour
+4. If count ≥ limit, reject review with friendly message
+5. If count < limit, proceed and add current timestamp
+
+**Configuration:**
+```env
+RATE_LIMIT_ENABLED=true
+MAX_REVIEWS_PER_HOUR=50
+```
+
+**User Experience When Limit Reached:**
+
+The developer sees a comment on their MR:
+```
+⚠️ Rate limit exceeded. Please try again later.
+```
+
+The rate limit resets automatically after 1 hour (sliding window).
+
+### Why Rate Limiting?
+
+**Protection Against:**
+- ✅ Accidental spam (someone adds `ai-review` label to 100 MRs)
+- ✅ Webhook replay attacks
+- ✅ Cost spikes from excessive API calls
+- ✅ Service overload during incidents
+
+**Works With Token Budget:**
+- **Rate Limiting**: Prevents volume abuse (50 reviews/hour)
+- **Token Budget**: Prevents cost overruns (1M tokens/day)
+
+Both protections work together for comprehensive cost control.
+
+### Example Scenarios
+
+**Normal Usage (within limits):**
+```
+Hour 1: 20 reviews → ✅ All processed
+Hour 2: 30 reviews → ✅ All processed
+Hour 3: 15 reviews → ✅ All processed
+```
+
+**Rate Limit Triggered:**
+```
+09:00-09:30: 30 reviews → ✅ Processed
+09:30-10:00: 25 reviews → ⚠️ Last 5 rejected (exceeded 50/hour)
+10:00-10:30: Reviews from 09:00-09:30 expire → ✅ Limit resets
+```
+
+**Adjusting for Your Team:**
+- Small team (5-10 devs): `MAX_REVIEWS_PER_HOUR=30`
+- Medium team (15-20 devs): `MAX_REVIEWS_PER_HOUR=50` (default)
+- Large team (30+ devs): `MAX_REVIEWS_PER_HOUR=100`
+
 ## API Endpoints
 
 - `GET /health` - Health check
@@ -250,6 +318,7 @@ volumes:
 ## Future Enhancements
 
 Planned iterative improvements:
+- [ ] Reviewer-based triggering (assign `gitlab-ai-reviewer` as alternative to labels)
 - [ ] Enhanced prompts (from gitlab-cr-agent patterns)
 - [ ] Cost reporting dashboard
 - [ ] Review statistics
