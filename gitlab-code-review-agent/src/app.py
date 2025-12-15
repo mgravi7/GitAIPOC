@@ -13,6 +13,8 @@ from datetime import datetime
 from src.config import settings
 from src.gitlab_client import GitLabClient
 from src.claude_reviewer import reviewer
+from src.token_tracker import tracker
+from src.exceptions import TokenBudgetExceeded
 
 # Configure logging
 logging.basicConfig(
@@ -25,7 +27,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Code Review Agent",
     description="AI-powered code reviews for GitLab merge requests using Claude",
-    version="1.0.0"
+    version="1.1.0"
 )
 
 # Initialize GitLab client
@@ -41,7 +43,24 @@ async def health_check():
     return {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
-        "version": "1.0.0"
+        "version": "1.1.0"
+    }
+
+
+@app.get("/budget/status")
+async def budget_status():
+    """
+    Get current token budget status
+    
+    Returns daily statistics including tokens used, remaining, and budget percentage
+    """
+    if not settings.token_budget_enabled:
+        return {"enabled": False, "message": "Token budget tracking is disabled"}
+    
+    stats = await tracker.get_daily_stats()
+    return {
+        "enabled": True,
+        "stats": stats
     }
 
 
@@ -120,13 +139,30 @@ async def process_code_review(project_id: int, mr_iid: int):
         mr_title = mr_details.get("title", "")
         mr_description = mr_details.get("description", "")
         
+        # Extract author information for token tracking
+        author = mr_details.get("author", {})
+        username = author.get("username", "unknown")
+        
+        # Extract project name from web_url or use project_id as fallback
+        project_web_url = mr_details.get("web_url", "")
+        if project_web_url and "/merge_requests/" in project_web_url:
+            # Extract project path from URL (e.g., "root/python-test-app")
+            before_mr = project_web_url.split("/merge_requests/")[0]
+            path_segments = before_mr.strip("/").split("/")
+            if len(path_segments) >= 2:
+                project_name = "/".join(path_segments[-2:])
+            else:
+                project_name = str(project_id)
+        else:
+            project_name = str(project_id)
+        
         # Format diff for review
         diff = gitlab.format_diff_for_review(mr_changes)
         
         # Check diff size
         diff_lines = len(diff.split("\n"))
-        if diff_lines > settings.max_diff_size:
-            error_msg = f"⚠️ Diff too large ({diff_lines} lines). Maximum is {settings.max_diff_size} lines."
+        if diff_lines > settings.max_diff_size_lines:
+            error_msg = f"⚠️ Diff too large ({diff_lines} lines). Maximum is {settings.max_diff_size_lines} lines."
             await gitlab.post_merge_request_comment(project_id, mr_iid, error_msg)
             return
         
@@ -137,15 +173,42 @@ async def process_code_review(project_id: int, mr_iid: int):
             )
             return
         
-        # Get AI review from Claude
+        # Get AI review from Claude (with budget check and token tracking)
         logger.info(f"Requesting review from Claude for MR {mr_iid}")
-        review = await reviewer.review_code(diff, mr_title, mr_description)
+        review = await reviewer.review_code(
+            diff, mr_title, mr_description,
+            project_id, project_name, mr_iid, username
+        )
         
         # Format and post review comment
         comment = format_review_comment(review)
         await gitlab.post_merge_request_comment(project_id, mr_iid, comment)
         
         logger.info(f"✅ Successfully completed review for MR {mr_iid}")
+        
+    except TokenBudgetExceeded as e:
+        logger.warning(f"Token budget exhausted for MR {mr_iid}: {str(e)}")
+        
+        # Post budget exhausted message to MR
+        budget_msg = f"""⚠️ **Daily Token Budget Exhausted**
+
+{str(e)}
+
+The AI code review service has reached its daily token limit. Reviews will automatically resume tomorrow.
+
+**Budget Details:**
+- Check the budget status at: `GET /budget/status`
+- Reviews will resume at midnight UTC
+
+**What you can do:**
+- Merge requests will be queued automatically
+- Remove and re-add the `{settings.gitlab_trigger_label}` label tomorrow to trigger a review
+- Contact your DevOps team if this is urgent
+
+---
+*Token budget helps control costs and ensures fair usage across all teams.*
+"""
+        await gitlab.post_merge_request_comment(project_id, mr_iid, budget_msg)
         
     except Exception as e:
         logger.error(f"Error during code review: {str(e)}", exc_info=True)

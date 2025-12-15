@@ -1,3 +1,0 @@
-[submodule "gitlab-cr-agent"]
-	path = gitlab-cr-agent
-	url = https://github.com/adraynrion/gitlab-cr-agent.git
