@@ -224,8 +224,16 @@ class TokenTracker:
         temp_path = summary_path.with_suffix('.tmp')
         with open(temp_path, 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=2)
-        temp_path.replace(summary_path)
-    
+        try:
+            temp_path.replace(summary_path)
+        except Exception as e:
+            logger.error(f"Failed to atomically replace {summary_path} with {temp_path}: {e}", exc_info=True)
+            # Optionally, try to clean up the temp file
+            try:
+                if temp_path.exists():
+                    temp_path.unlink()
+            except Exception as cleanup_exc:
+                logger.error(f"Failed to clean up temp file {temp_path}: {cleanup_exc}", exc_info=True)
     async def _read_daily_summary(self, timestamp: Optional[datetime] = None) -> Dict:
         """
         Read daily summary JSON
