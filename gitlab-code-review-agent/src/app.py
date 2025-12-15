@@ -145,10 +145,14 @@ async def process_code_review(project_id: int, mr_iid: int):
         
         # Extract project name from web_url or use project_id as fallback
         project_web_url = mr_details.get("web_url", "")
-        if project_web_url:
+        if project_web_url and "/merge_requests/" in project_web_url:
             # Extract project path from URL (e.g., "root/python-test-app")
-            project_path = project_web_url.split("/merge_requests/")[0].split("/")[-2:]
-            project_name = "/".join(project_path) if len(project_path) == 2 else str(project_id)
+            before_mr = project_web_url.split("/merge_requests/")[0]
+            path_segments = before_mr.strip("/").split("/")
+            if len(path_segments) >= 2:
+                project_name = "/".join(path_segments[-2:])
+            else:
+                project_name = str(project_id)
         else:
             project_name = str(project_id)
         
