@@ -3,7 +3,6 @@
 Token usage tracking and budget enforcement
 Excel-friendly CSV logging with monthly rotation
 """
-import os
 import csv
 import json
 import asyncio
